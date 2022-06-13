@@ -18,14 +18,15 @@ import Page from '../components/Page';
 import { styled } from '@mui/material/styles';
 import { PhotoCamera, Save } from '@mui/icons-material';
 import { initProduct } from '../utils/object/productForm';
-import { uploadImage, getListCategory, addProduct } from '../api/admin';
+import { uploadImage, getListCategory, addProduct, getProductById } from '../api/admin';
 import Cookies from 'js-cookie';
+import { useParams } from 'react-router-dom';
 
 const Input = styled('input')({
   display: 'none',
 });
 
-function ManageProduct() {
+function ProductDetails() {
   const initStateProductForm = initProduct('', '', 0, [], [], '', '', '', 0);
   const [productForm, setProductForm] = useState(initStateProductForm);
   const [images, setImages] = useState([]);
@@ -33,13 +34,23 @@ function ManageProduct() {
   const API_URL = 'https://atroboticsvn.com';
   const UPLOAD_ENDPOINT = 'api/v1/admin/auth/file-uploads/single-file';
   const token = Cookies.get('access_token');
+  const { productId } = useParams();
 
   useEffect(() => {
+
     getListCategory()
       .then((res) => setListCategory(res?.data?.data))
       .catch((err) => {
-        console.log(err);
+        console.log(err)
       });
+
+  getProductById(productId)
+    .then(result => {
+      setProductForm(result.data.data)
+    }).catch(err => console.log(err))
+
+
+
   }, []);
   function uploadAdapter(loader) {
     return {
@@ -163,7 +174,7 @@ function ManageProduct() {
     <Page title="Dashboard: Add product">
       <Container>
         <Typography variant="h4" sx={{ mb: 5 }}>
-          Add Product Form
+          Update Product Form
         </Typography>
 
         <Grid container spacing={3}>
@@ -230,6 +241,7 @@ function ManageProduct() {
               <Select
                 labelId="product-category"
                 value={productForm.categoryId}
+                defaultValue=""
                 label="Product Category"
                 onChange={handleChangeProductCategoryId}
               >
@@ -315,7 +327,7 @@ function ManageProduct() {
             color="success"
             onClick={handleSubmit}
           >
-            Submit
+            Update
           </Button>
         </Grid>
       </Container>
@@ -323,4 +335,4 @@ function ManageProduct() {
   );
 }
 
-export default ManageProduct;
+export default ProductDetails;

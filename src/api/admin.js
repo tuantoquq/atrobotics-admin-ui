@@ -31,23 +31,24 @@ export const getListCategory = async () => {
 
 export const getListProduct = async () => {
   let response;
-  try{
+  try {
     response = await axiosConfig.get('/user/products');
-  }catch(error){
+  } catch (error) {
     console.log(error);
     return;
   }
+  console.log(response);
   return response;
 }
 export const getListUser = async (token, limit, offset) => {
   let response;
-  try{
-    response = await axiosConfig.get(`/admin/auth/user/lists?limit=${limit}&offset=${offset}`,{
+  try {
+    response = await axiosConfig.get(`/admin/auth/user/lists?limit=${limit}&offset=${offset}`, {
       headers: {
         Authorization: `Bearer ${token}`,
       }
     });
-  }catch(error){
+  } catch (error) {
     console.log(error);
     return;
   }
@@ -56,16 +57,41 @@ export const getListUser = async (token, limit, offset) => {
 
 export const addProduct = async (token, productForm) => {
   let response;
-  try{
-    response = await axiosConfig.post('/admin/auth/products',productForm,{
+  try {
+    response = await axiosConfig.post('/admin/auth/products', productForm, {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Bearer ${token}`,
       }
     });
-  }catch(error){
+  } catch (error) {
     console.log(error);
     return;
+  }
+  return response;
+}
+
+export const getProductById = async (productId) => {
+  let response;
+  try {
+    response = await axiosConfig.get(`/user/products/${productId}`);
+  } catch (err) {
+    console.log(err);
+  }
+  return response;
+}
+
+export const getAllOrderByStatus = async (token, status) => {
+  let response;
+  try {
+    response = await axiosConfig.get(`/admin/auth/orders?status=${status}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`,
+      }
+    });
+  } catch (err) {
+    console.log(err);
   }
   return response;
 }

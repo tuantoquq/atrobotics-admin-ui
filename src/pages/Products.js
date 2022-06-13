@@ -5,7 +5,7 @@ import { Container, Stack, Typography, Box, Button, Grid } from '@mui/material';
 import Page from '../components/Page';
 import { ProductSort, ProductList, ProductFilterSidebar } from '../sections/@dashboard/products';
 // mock
-import PRODUCTS from '../_mock/products';
+// import PRODUCTS from '../_mock/products';
 import Iconify from '../components/Iconify';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,7 +14,6 @@ import { useNavigate } from 'react-router-dom';
 export default function EcommerceShop() {
   const navigate = useNavigate();
   const [openFilter, setOpenFilter] = useState(false);
-
   const handleOpenFilter = () => {
     setOpenFilter(true);
   };
@@ -55,8 +54,7 @@ export default function EcommerceShop() {
             </Stack>
           </Grid>
         </Grid>
-
-        <ProductList products={PRODUCTS} />
+        <ProductList  />
       </Container>
     </Page>
   );
