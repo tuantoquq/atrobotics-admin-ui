@@ -11,6 +11,7 @@ import DashboardApp from './pages/DashboardApp';
 import ManageProduct from './pages/ManageProduct';
 import Order from './pages/Order';
 import OrderDetails from './pages/OrderDetail';
+import ProductDetails from './pages/ProductDetails';
 
 // ----------------------------------------------------------------------
 
@@ -27,6 +28,7 @@ export default function Router() {
         { path: 'manage-product', element: <ManageProduct /> },
         { path: 'order-details', element: <OrderDetails /> },
 
+
       ],
     },
     {
@@ -40,5 +42,7 @@ export default function Router() {
       ],
     },
     { path: '*', element: <Navigate to="/404" replace /> },
+    { path:'/products/:productId', element: <ProductDetails /> },
+
   ]);
 }

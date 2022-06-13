@@ -20,58 +20,10 @@ import FilterListIcon from '@mui/icons-material/FilterList';
 import { visuallyHidden } from '@mui/utils';
 import { Card, CardContent, FormControl, InputAdornment, InputLabel, MenuItem, Select, SvgIcon, TextField, Button } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
-import EditIcon from '@mui/icons-material/Edit';
 import { useNavigate } from 'react-router-dom';
+import { getAllOrderByStatus } from '../../api/admin';
+import Cookies from 'js-cookie';
 
-const rows = [{
-  id: 1,
-  name: 'MD001',
-  email: 'lotuscos@way.com',
-  items: 'ProductMD01x1 white, ProductMD01x1 black',
-  status: 'Waiting ',
-}, {
-  id: 2,
-  name: 'MD002',
-  email: 'diamend@open.com',
-  items: 'ProductMD01x1 white, ProductMD01x1 black',
-  status: 'Accepted ',
-
-}, {
-  id: 3,
-  name: 'MD003',
-  email: 'rickkid@devias.io',
-  items: 'ProductMD01x1 white, ProductMD01x1 black',
-  status: '	Finished ',
-},
-{
-  id: 4,
-  name: 'MD004',
-  email: 'rickkid@devias.io',
-  items: 'ProductMD01x1 white, ProductMD01x1 black',
-  status: 'Waiting',
-},
-{
-  id: 5,
-  name: 'MD005',
-  email: 'rickkid@devias.io',
-  items: 'ProductMD01x1 white, ProductMD01x1 black',
-  status: '	Finished ',
-},
-{
-  id: 6,
-  name: 'MD006',
-  email: 'rickkid@devias.io',
-  items: 'ProductMD01x1 white, ProductMD01x1 black',
-  status: '	Accepted ',
-},
-{
-  id: 7,
-  name: 'MD007',
-  email: 'rickkid@devias.io',
-  items: 'ProductMD01x1 white, ProductMD01x1 black',
-  status: '	Waiting ',
-}
-]
 
 function descendingComparator(a, b, orderBy) {
   if (b[orderBy] < a[orderBy]) {
@@ -103,24 +55,29 @@ function stableSort(array, comparator) {
 
 const headCells = [
   {
-    id: 'ordercode',
+    id: 'order_code',
     disablePadding: true,
     label: 'OrderCode',
   },
   {
-    id: 'useremail',
+    id: 'address',
     disablePadding: false,
-    label: 'User_Email',
+    label: 'Address',
   },
   {
-    id: 'orderitems',
+    id: 'order_items',
     disablePadding: false,
     label: 'OrderItems',
   },
   {
-    id: 'orderstatus',
+    id: 'order_status',
     disablePadding: false,
     label: ' OrderStatus',
+  },
+  {
+    id: 'asdadad',
+    disablePadding: false,
+    label: ' ',
   },
 
 ];
@@ -175,6 +132,22 @@ export default function OrderResult() {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(5);
   const navigate = useNavigate();
+  const token = Cookies.get("access_token");
+  const [status, setStatus] = React.useState('1');
+
+  const [rows, setRows] = React.useState([])
+
+
+  React.useEffect(() => {
+    getAllOrderByStatus(token, status)
+      .then(result => {
+        setRows(result?.data?.data == null ? [] : result.data?.data)
+        console.log(result?.data?.data)
+
+      })
+      .catch(err => console.log(err))
+
+  }, [status])
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === 'asc';
@@ -194,6 +167,11 @@ export default function OrderResult() {
   const emptyRows =
     page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0;
 
+
+  const handleChange = (event) => {
+    setStatus(event.target.value);
+  };
+
   return (
     <Card sx={{ width: '100%' }}>
       <CardContent sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
@@ -204,10 +182,16 @@ export default function OrderResult() {
               labelId="demo-simple-select-label"
               id="demo-simple-select"
               label="Status"
+              value={status}
+              onChange={handleChange}
             >
-              <MenuItem value={10}>Waiting</MenuItem>
-              <MenuItem value={20}>Accepted</MenuItem>
-              <MenuItem value={30}>Finsished</MenuItem>
+              <MenuItem value={0}>Cancelled</MenuItem>
+              <MenuItem value={1}>Waiting</MenuItem>
+              <MenuItem value={2}>Accepted</MenuItem>
+              <MenuItem value={3}>Delivering</MenuItem>
+              <MenuItem value={4}>Successed</MenuItem>
+
+
             </Select>
           </FormControl>
         </Box>
@@ -226,7 +210,7 @@ export default function OrderResult() {
                 </InputAdornment>
               )
             }}
-            placeholder="Search customer"
+            placeholder="Search..."
             variant="outlined"
           />
         </Box>
@@ -254,7 +238,7 @@ export default function OrderResult() {
               order={order}
               orderBy={orderBy}
               onRequestSort={handleRequestSort}
-              rowCount={rows.length}
+              rowCount={rows?.length}
             />
             <TableBody>
               {stableSort(rows, getComparator(order, orderBy))
@@ -278,23 +262,33 @@ export default function OrderResult() {
                         scope="row"
                         padding="none"
                       >
-                        {row.name}
+                        {row.orderCode}
                       </TableCell>
-                      <TableCell >{row.email}</TableCell>
-                      <TableCell sx={{ maxWidth: 150 }}>{row.items}</TableCell>
+                      <TableCell >{row.orderAddress}</TableCell>
+                      <TableCell sx={{ maxWidth: 350 }}>{row.details.map((result) => {
+                        return (
+                          <tr key={result.productId}>
+                            <td style={{ padding: '5px' }}>
+                              {result.productName}
+                            </td>
+                            <td style={{ padding: '5px', color: 'red', fontWeight: 'bold' }}>
+                              {result.quantity}
+                            </td>
+                            <td style={{ padding: '5px', fontStyle: 'italic', fontWeight: '800', }}>
+
+                              {result.colors}
+                            </td>
+                          </tr>
+                        )
+                      })}</TableCell>
                       <TableCell >
-                        <Button variant="outlined">{row.status}</Button>
+                        {styleOrderStatusButton(row.status)}
                       </TableCell>
                       <TableCell sx={{ maxWidth: 80 }}
                       >
-                        <div style={{ display: 'flex', gap: '20px' }}>
-                          <EditIcon sx={{ fontSize: '20px' }} onClick={(e) => {
-                            alert('Edit Selected')
-                          }} />
-                          <DeleteIcon sx={{ fontSize: '20px' }} color="error" onClick={(e) => {
-                            alert('Delete Selected')
-                          }} />
-                        </div>
+                        <DeleteIcon sx={{ fontSize: '20px' }} color="error" onClick={(e) => {
+                          alert('Delete Selected')
+                        }} />
                       </TableCell>
                     </TableRow>
                   );
@@ -305,7 +299,7 @@ export default function OrderResult() {
                     height: (53) * emptyRows,
                   }}
                 >
-                  <TableCell colSpan={6} />
+                  <TableCell colSpan={5} />
                 </TableRow>
               )}
             </TableBody>
@@ -323,4 +317,20 @@ export default function OrderResult() {
       </Paper>
     </Card>
   );
+}
+function styleOrderStatusButton(status) {
+  switch (status) {
+    case 1:
+      return <Button variant="contained" sx={{ minWidth: 100 }}>Waiting</Button>
+    case 2:
+      return <Button variant="contained" sx={{ minWidth: 100, bgcolor: '#0097AC' }}>Accepted</Button>
+    case 3:
+      return <Button variant="contained" sx={{ minWidth: 100, bgcolor: 'purple' }}>Delivering</Button>
+    case 4:
+      return <Button variant="contained" sx={{ minWidth: 100, bgcolor: 'green' }}>Successed</Button>
+    case 0:
+      return <Button variant="contained" sx={{ minWidth: 100, bgcolor: 'red' }}>Cancelled</Button>
+    default:
+      break;
+  }
 }
